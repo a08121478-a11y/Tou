@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* General Styles */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+            --background-color: #f4f7f9;
+            --white: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--secondary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Login Section */
+        #login-section {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+        }
+
+        #login-section h2 {
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .input-group .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--dark-gray);
+        }
+
+        #forgot-password {
+            display: block;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        #forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        /* Main App Structure */
+        #main-app {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: 250px;
+            background: var(--secondary-color);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+        
+        #sidebar h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--dark-gray);
+        }
+
+        #sidebar nav ul {
+            list-style: none;
+        }
+
+        #sidebar nav ul li a {
+            display: block;
+            padding: 1rem;
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        #sidebar nav ul li a:hover, #sidebar nav ul li a.active {
+            background: var(--primary-color);
+        }
+
+        #logout-btn {
+            margin-top: auto;
+        }
+
+        /* Main Content */
+        #main-content {
+            flex-grow: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .content-section h2 {
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        /* Dashboard Widgets */
+        #dashboard-widgets {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: var(--dark-gray);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Chart Container */
+        #chart-container {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Form Styles */
+        .form-container {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        /* Table Styles */
+        .table-container {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow-x: auto;
+        }
+        
+        #tournament-search {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        th {
+            font-weight: 700;
+        }
+        
+        .action-buttons button {
+            margin-right: 5px;
+            padding: 5px 8px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            position: relative;
+        }
+
+        .btn:disabled {
+            background-color: var(--dark-gray);
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary { background-color: var(--dark-gray); color: white; }
+        .btn-success { background-color: var(--success-color); color: white; }
+        .btn-danger { background-color: var(--error-color); color: white; }
+        .btn-warning { background-color: #f39c12; color: white; }
+
+        .btn .spinner {
+            display: none;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            width: 18px;
+            height: 18px;
+            animation: spin 1s ease-in-out infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -9px;
+            margin-left: -9px;
+        }
+
+        .btn.loading .spinner {
+            display: block;
+        }
+        .btn.loading span {
+            visibility: hidden;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 700px;
+            border-radius: var(--border-radius);
+            position: relative;
+            animation: slide-down 0.3s ease-out;
+        }
+        
+        @keyframes slide-down {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .modal-header, .modal-footer {
+            padding: 1rem;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .modal-body {
+            padding: 1rem;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid var(--light-gray);
+            text-align: right;
+        }
+
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+        }
+
+        .toast {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast.success { background-color: var(--success-color); }
+        .toast.error { background-color: var(--error-color); }
+        .toast.info { background-color: var(--primary-color); }
+
+        /* Skeleton Loader */
+        .skeleton {
+            animation: skeleton-loading 1s linear infinite alternate;
+        }
+        @keyframes skeleton-loading {
+            0% { background-color: hsl(200, 20%, 80%); }
+            100% { background-color: hsl(200, 20%, 95%); }
+        }
+        .skeleton-text {
+            width: 100%;
+            height: 0.7rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SECTION 1: Secure Admin Authentication -->
+    <div id="login-section">
+        <h2>Admin Panel Login</h2>
+        <form id="login-form">
+            <div class="input-group">
+                <input type="email" id="email" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" required>
+                <i class="fas fa-eye toggle-password" id="toggle-password"></i>
+            </div>
+            <a href="#" id="forgot-password">Forgot Password?</a>
+            <button type="submit" id="login-btn" class="btn btn-primary">
+                <span>Login</span>
+                <div class="spinner"></div>
+            </button>
+        </form>
+    </div>
+
+    <!-- MAIN APPLICATION -->
+    <div id="main-app" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar">
+            <h1>Command Center</h1>
+            <nav>
+                <ul>
+                    <li><a href="#dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="#create-tournament" class="nav-link"><i class="fas fa-plus-circle"></i> Create Tournament</a></li>
+                    <li><a href="#manage-tournaments" class="nav-link"><i class="fas fa-tasks"></i> Manage Tournaments</a></li>
+                </ul>
+            </nav>
+            <button id="logout-btn" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <!-- SECTION 2: The Command Center Dashboard -->
+            <section id="dashboard" class="content-section active">
+                <h2>Dashboard Overview</h2>
+                <div id="dashboard-widgets">
+                    <div class="stat-card">
+                        <h3>Total Tournaments</h3>
+                        <p class="stat-number" id="total-tournaments-stat">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Participants</h3>
+                        <p class="stat-number" id="total-participants-stat">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Upcoming Tournaments</h3>
+                        <p class="stat-number" id="upcoming-tournaments-stat">0</p>
+                    </div>
+                </div>
+                <div id="chart-container">
+                    <h3>Top 5 Tournaments by Participants</h3>
+                    <canvas id="participants-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- SECTION 3.1: Create Tournament -->
+            <section id="create-tournament" class="content-section">
+                <h2>Create New Tournament</h2>
+                <div class="form-container">
+                    <form id="create-tournament-form">
+                        <input type="hidden" id="tournament-id">
+                        <div class="form-group">
+                            <label for="tournament-name">Tournament Name</label>
+                            <input type="text" id="tournament-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="game-type">Game/Type</label>
+                            <input type="text" id="game-type" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="format">Format</label>
+                            <select id="format" required>
+                                <option value="Knockout">Knockout</option>
+                                <option value="League">League</option>
+                                <option value="Round Robin">Round Robin</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="date-time">Date & Time</label>
+                            <input type="datetime-local" id="date-time" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="location-url">Location/URL</label>
+                            <input type="text" id="location-url" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rules">Rules</label>
+                            <textarea id="rules"></textarea>
+                        </div>
+                        <button type="submit" id="create-tournament-btn" class="btn btn-primary">
+                            <span>Create Tournament</span>
+                            <div class="spinner"></div>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- SECTION 3.2: Manage Tournaments -->
+            <section id="manage-tournaments" class="content-section">
+                <h2>Manage Tournaments</h2>
+                <div class="table-container">
+                    <input type="text" id="tournament-search" placeholder="Search by tournament name...">
+                    <table id="tournaments-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Game</th>
+                                <th>Date</th>
+                                <th>Participants</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tournaments-table-body">
+                           <!-- Skeleton Loader Rows -->
+                           <tr>
+                               <td><div class="skeleton skeleton-text"></div></td>
+                               <td><div class="skeleton skeleton-text"></div></td>
+                               <td><div class="skeleton skeleton-text"></div></td>
+                               <td><div class="skeleton skeleton-text"></div></td>
+                               <td><div class="skeleton skeleton-text"></div></td>
+                           </tr>
+                           <tr>
+                            <td><div class="skeleton skeleton-text"></div></td>
+                            <td><div class="skeleton skeleton-text"></div></td>
+                            <td><div class="skeleton skeleton-text"></div></td>
+                            <td><div class="skeleton skeleton-text"></div></td>
+                            <td><div class="skeleton skeleton-text"></div></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="edit-tournament-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-btn">&times;</span>
+                <h2>Edit Tournament</h2>
+            </div>
+            <div class="modal-body">
+                <!-- Form content will be injected here -->
+            </div>
+        </div>
+    </div>
+    
+    <div id="view-participants-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-btn">&times;</span>
+                <h2 id="participants-modal-title">View Participants</h2>
+            </div>
+            <div class="modal-body" id="participants-modal-body">
+                <!-- Participant list will be injected here -->
+            </div>
+            <div class="modal-footer">
+                <button id="export-csv-btn" class="btn btn-success"><i class="fas fa-file-csv"></i> Export to CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <!-- Firebase and Chart.js CDNs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script type="module">
+        // ===================================================================================
+        // FIREBASE V9 (MODULAR) CONFIGURATION
+        // Replace with your actual Firebase project configuration.
+        // ===================================================================================
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ===================================================================================
+        // GLOBAL VARIABLES & DOM ELEMENTS
+        // ===================================================================================
+        const loginSection = document.getElementById('login-section');
+        const mainApp = document.getElementById('main-app');
+        const contentSections = document.querySelectorAll('.content-section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        // ===================================================================================
+        // UTILITY FUNCTIONS
+        // ===================================================================================
+
+        /**
+         * Shows a toast notification.
+         * @param {string} message - The message to display.
+         * @param {string} type - 'success', 'error', or 'info'.
+         */
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
+        /**
+         * Toggles the loading state of a button.
+         * @param {HTMLElement} button - The button element.
+         * @param {boolean} isLoading - True to show spinner, false to hide.
+         */
+        function toggleButtonLoading(button, isLoading) {
+            button.disabled = isLoading;
+            button.classList.toggle('loading', isLoading);
+        }
+
+        // ===================================================================================
+        // SECTION 1: AUTHENTICATION
+        // ===================================================================================
+        
+        // Check auth state on page load
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in
+                loginSection.style.display = 'none';
+                mainApp.style.display = 'flex';
+                initializeDashboard();
+            } else {
+                // User is signed out
+                loginSection.style.display = 'block';
+                mainApp.style.display = 'none';
+            }
+        });
+
+        // Login Form Submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('login-btn');
+            
+            toggleButtonLoading(loginBtn, true);
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                showToast('Login Successful!', 'success');
+            } catch (error) {
+                const errorMessage = error.code === 'auth/user-not-found' ? 'User not found.' :
+                                   error.code === 'auth/wrong-password' ? 'Incorrect password.' :
+                                   'An error occurred. Please try again.';
+                showToast(errorMessage, 'error');
+            } finally {
+                toggleButtonLoading(loginBtn, false);
+            }
+        });
+        
+        // Password Visibility Toggle
+        document.getElementById('toggle-password').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // Forgot Password
+        document.getElementById('forgot-password').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            if (!email) {
+                showToast('Please enter your email address first.', 'error');
+                return;
+            }
+            try {
+                await auth.sendPasswordResetEmail(email);
+                showToast(`Password reset email sent to ${email}`, 'success');
+            } catch (error) {
+                showToast('Error sending password reset email.', 'error');
+            }
+        });
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            auth.signOut();
+            showToast('You have been logged out.', 'info');
+        });
+
+        // ===================================================================================
+        // SECTION 2: DASHBOARD
+        // ===================================================================================
+        
+        async function initializeDashboard() {
+            // Live stat cards
+            db.collection('tournaments').onSnapshot(snapshot => {
+                document.getElementById('total-tournaments-stat').textContent = snapshot.size;
+            });
+            
+            // This is a simplified approach. For large datasets, a cloud function is better.
+            let totalParticipants = 0;
+            const tournamentsSnapshot = await db.collection('tournaments').get();
+            for (const doc of tournamentsSnapshot.docs) {
+                const participantsSnapshot = await doc.ref.collection('participants').get();
+                totalParticipants += participantsSnapshot.size;
+            }
+            document.getElementById('total-participants-stat').textContent = totalParticipants;
+            
+            // Upcoming tournaments
+            const now = new Date();
+            db.collection('tournaments').where('dateTime', '>=', now.toISOString()).onSnapshot(snapshot => {
+                document.getElementById('upcoming-tournaments-stat').textContent = snapshot.size;
+            });
+
+            // Data Visualization
+            renderParticipantsChart();
+        }
+
+        let participantsChart;
+        async function renderParticipantsChart() {
+            const tournamentsSnapshot = await db.collection('tournaments').get();
+            const tournamentsData = [];
+
+            for (const doc of tournamentsSnapshot.docs) {
+                const participantsSnapshot = await doc.ref.collection('participants').get();
+                tournamentsData.push({
+                    name: doc.data().name,
+                    participantsCount: participantsSnapshot.size
+                });
+            }
+
+            // Sort and get top 5
+            const top5 = tournamentsData.sort((a, b) => b.participantsCount - a.participantsCount).slice(0, 5);
+            
+            const ctx = document.getElementById('participants-chart').getContext('2d');
+            if(participantsChart) {
+                participantsChart.destroy();
+            }
+            participantsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: top5.map(t => t.name),
+                    datasets: [{
+                        label: '# of Participants',
+                        data: top5.map(t => t.participantsCount),
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+        
+        // ===================================================================================
+        // SECTION 3: TOURNAMENT & PARTICIPANT MANAGEMENT
+        // ===================================================================================
+
+        // Create/Update Tournament Form
+        document.getElementById('create-tournament-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const tournamentId = document.getElementById('tournament-id').value;
+            const formBtn = document.getElementById('create-tournament-btn');
+            
+            const tournamentData = {
+                name: document.getElementById('tournament-name').value,
+                gameType: document.getElementById('game-type').value,
+                format: document.getElementById('format').value,
+                dateTime: document.getElementById('date-time').value,
+                location: document.getElementById('location-url').value,
+                rules: document.getElementById('rules').value,
+            };
+
+            // Client-side validation
+            if (!tournamentData.name || !tournamentData.dateTime) {
+                showToast('Name and Date are required.', 'error');
+                return;
+            }
+            if (new Date(tournamentData.dateTime) < new Date() && !tournamentId) {
+                showToast('Tournament date cannot be in the past.', 'error');
+                return;
+            }
+
+            toggleButtonLoading(formBtn, true);
+
+            try {
+                if(tournamentId) {
+                    // Update existing tournament
+                    await db.collection('tournaments').doc(tournamentId).update(tournamentData);
+                    showToast('Tournament updated successfully!', 'success');
+                    closeModal('edit-tournament-modal');
+                } else {
+                    // Create new tournament
+                    await db.collection('tournaments').add(tournamentData);
+                    showToast('Tournament created successfully!', 'success');
+                    e.target.reset(); // Clear form
+                }
+            } catch (error) {
+                console.error("Error saving tournament: ", error);
+                showToast('Error saving tournament.', 'error');
+            } finally {
+                toggleButtonLoading(formBtn, false);
+            }
+        });
+        
+        // Manage Tournaments: Display Real-time Data
+        db.collection('tournaments').onSnapshot(async (querySnapshot) => {
+            const tableBody = document.getElementById('tournaments-table-body');
+            tableBody.innerHTML = ''; // Clear existing rows
+            if (querySnapshot.empty) {
+                tableBody.innerHTML = '<tr><td colspan="5">No tournaments found.</td></tr>';
+                return;
+            }
+            for (const doc of querySnapshot.docs) {
+                const data = doc.data();
+                const participantsSnapshot = await doc.ref.collection('participants').get();
+                const participantCount = participantsSnapshot.size;
+
+                const row = `
+                    <tr data-id="${doc.id}" data-name="${data.name.toLowerCase()}">
+                        <td>${data.name}</td>
+                        <td>${data.gameType}</td>
+                        <td>${new Date(data.dateTime).toLocaleString()}</td>
+                        <td>${participantCount}</td>
+                        <td class="action-buttons">
+                            <button class="btn btn-primary btn-sm edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger btn-sm delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-secondary btn-sm clone-btn" title="Clone"><i class="fas fa-clone"></i></button>
+                            <button class="btn btn-info btn-sm view-participants-btn" title="View Participants"><i class="fas fa-users"></i> (${participantCount})</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            }
+            addTableActionListeners();
+        });
+        
+        // Manage Tournaments: Search/Filter
+        document.getElementById('tournament-search').addEventListener('keyup', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#tournaments-table-body tr');
+            rows.forEach(row => {
+                const name = row.dataset.name;
+                row.style.display = name.includes(searchTerm) ? '' : 'none';
+            });
+        });
+        
+        // Add listeners for dynamically created buttons
+        function addTableActionListeners() {
+            document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', handleEdit));
+            document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', handleDelete));
+            document.querySelectorAll('.clone-btn').forEach(btn => btn.addEventListener('click', handleClone));
+            document.querySelectorAll('.view-participants-btn').forEach(btn => btn.addEventListener('click', handleViewParticipants));
+        }
+
+        async function handleEdit(e) {
+            const id = e.target.closest('tr').dataset.id;
+            const doc = await db.collection('tournaments').doc(id).get();
+            const data = doc.data();
+
+            const modalBody = document.querySelector('#edit-tournament-modal .modal-body');
+            modalBody.innerHTML = `
+                <form id="edit-tournament-form">
+                    <input type="hidden" id="edit-tournament-id" value="${id}">
+                    <div class="form-group">
+                        <label>Tournament Name</label>
+                        <input type="text" id="edit-tournament-name" value="${data.name}" required>
+                    </div>
+                     <div class="form-group">
+                        <label>Game/Type</label>
+                        <input type="text" id="edit-game-type" value="${data.gameType}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date & Time</label>
+                        <input type="datetime-local" id="edit-date-time" value="${data.dateTime}" required>
+                    </div>
+                    <!-- Add other fields as needed -->
+                     <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            `;
+            openModal('edit-tournament-modal');
+            
+            document.getElementById('edit-tournament-form').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const updatedData = {
+                    name: document.getElementById('edit-tournament-name').value,
+                    gameType: document.getElementById('edit-game-type').value,
+                    dateTime: document.getElementById('edit-date-time').value,
+                };
+                await db.collection('tournaments').doc(id).update(updatedData);
+                showToast('Tournament updated!', 'success');
+                closeModal('edit-tournament-modal');
+            });
+        }
+        
+        async function handleDelete(e) {
+            const id = e.target.closest('tr').dataset.id;
+            if (confirm("Are you sure? This will also delete all participant data and cannot be undone.")) {
+                try {
+                    // Note: Deleting subcollections this way is not recommended for production.
+                    // A Cloud Function is the robust way to handle cascading deletes.
+                    const participantsSnapshot = await db.collection('tournaments').doc(id).collection('participants').get();
+                    const batch = db.batch();
+                    participantsSnapshot.forEach(doc => batch.delete(doc.ref));
+                    await batch.commit();
+
+                    await db.collection('tournaments').doc(id).delete();
+                    showToast('Tournament and its participants deleted.', 'success');
+                } catch (error) {
+                    console.error("Error deleting tournament: ", error);
+                    showToast('Error deleting tournament.', 'error');
+                }
+            }
+        }
+        
+        async function handleClone(e) {
+            const id = e.target.closest('tr').dataset.id;
+            const doc = await db.collection('tournaments').doc(id).get();
+            const data = doc.data();
+
+            // Switch to the create form and pre-fill it
+            showSection('create-tournament');
+            document.getElementById('tournament-name').value = `${data.name} (Clone)`;
+            document.getElementById('game-type').value = data.gameType;
+            document.getElementById('format').value = data.format;
+            document.getElementById('date-time').value = ''; // Clear date for new entry
+            document.getElementById('location-url').value = data.location;
+            document.getElementById('rules').value = data.rules;
+            document.getElementById('tournament-id').value = ''; // Ensure it's a new entry
+            showToast('Tournament data cloned. Set a new date and create.', 'info');
+        }
+
+        let currentTournamentIdForParticipants;
+        async function handleViewParticipants(e) {
+            const id = e.target.closest('tr').dataset.id;
+            currentTournamentIdForParticipants = id;
+            const tournamentDoc = await db.collection('tournaments').doc(id).get();
+            document.getElementById('participants-modal-title').textContent = `Participants for ${tournamentDoc.data().name}`;
+            
+            const modalBody = document.getElementById('participants-modal-body');
+            modalBody.innerHTML = 'Loading participants...';
+            openModal('view-participants-modal');
+            
+            db.collection('tournaments').doc(id).collection('participants').onSnapshot(snapshot => {
+                if (snapshot.empty) {
+                    modalBody.innerHTML = '<p>No participants have registered for this tournament yet.</p>';
+                    return;
+                }
+                
+                let tableHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Team Name</th>
+                                <th>Phone</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    tableHTML += `
+                        <tr data-id="${doc.id}">
+                            <td>${data.name || ''}</td>
+                            <td>${data.teamName || ''}</td>
+                            <td>${data.phone || ''}</td>
+                            <td><button class="btn btn-danger btn-sm remove-participant-btn">Remove</button></td>
+                        </tr>
+                    `;
+                });
+                tableHTML += '</tbody></table>';
+                modalBody.innerHTML = tableHTML;
+                
+                // Add listeners for remove buttons
+                document.querySelectorAll('.remove-participant-btn').forEach(btn => {
+                   btn.addEventListener('click', removeParticipant); 
+                });
+            });
+        }
+        
+        async function removeParticipant(e) {
+            const participantId = e.target.closest('tr').dataset.id;
+            if (confirm("Are you sure you want to remove this participant?")) {
+                await db.collection('tournaments').doc(currentTournamentIdForParticipants)
+                        .collection('participants').doc(participantId).delete();
+                showToast('Participant removed.', 'success');
+            }
+        }
+        
+        // Export to CSV
+        document.getElementById('export-csv-btn').addEventListener('click', async () => {
+             const snapshot = await db.collection('tournaments').doc(currentTournamentIdForParticipants)
+                                   .collection('participants').get();
+            if (snapshot.empty) {
+                showToast('No participants to export.', 'info');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,Name,Team Name,Phone\n";
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                csvContent += `${data.name},${data.teamName},${data.phone}\n`;
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "participants.csv");
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        });
+
+
+        // ===================================================================================
+        // UI NAVIGATION & MODALS
+        // ===================================================================================
+        
+        // Sidebar navigation
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                showSection(targetId);
+            });
+        });
+
+        function showSection(id) {
+            contentSections.forEach(section => {
+                section.classList.toggle('active', section.id === id);
+            });
+            navLinks.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+            });
+        }
+
+        // Modal handling
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        document.querySelectorAll('.modal .close-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.target.closest('.modal').style.display = 'none';
+            });
+        });
+        
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
+
+    </script>
+</body>
+</html>
